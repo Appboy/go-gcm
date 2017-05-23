@@ -100,13 +100,17 @@ func (c *gcmClient) SendXMPP(m XMPPMessage) (string, int, error) {
 }
 
 // Close will stop and close the corresponding client, releasing all resources (blocking).
-func (c *gcmClient) Close() error {
+func (c *gcmClient) Close() (err error) {
 	c.Lock()
 	defer c.Unlock()
 	if c.xmppClient != nil {
-		return c.xmppClient.Close(true)
+		err = c.xmppClient.Close(true)
 	}
-	return nil
+	if c.cerr != nil {
+		close(c.cerr)
+	}
+
+	return
 }
 
 // newGCMClient creates an instance of gcmClient.
@@ -139,11 +143,13 @@ func newGCMClient(xmppc xmppC, httpc httpC, config *Config, h MessageHandler) (*
 		select {
 		case err := <-c.cerr:
 			killMonitor <- true
+			close(c.cerr)
 			return nil, err
 		case <-clientIsConnected:
 			return c, nil
 		case <-time.After(10 * time.Second):
 			killMonitor <- true
+			close(c.cerr)
 			return nil, errors.New("Timed out attempting to connect client")
 		}
 	} else {
@@ -213,6 +219,7 @@ func (c *gcmClient) monitorXMPP(activeMonitor bool, clientIsConnected chan bool,
 			// Replace the active client.
 			c.Lock()
 			prevc := c.xmppClient
+			prevcerr := c.cerr
 			c.xmppClient = xmppc
 			c.cerr = cerr
 			c.Unlock()
@@ -220,7 +227,10 @@ func (c *gcmClient) monitorXMPP(activeMonitor bool, clientIsConnected chan bool,
 				Warn("gcm xmpp client replaced")
 
 			// Close the previous client.
-			go prevc.Close(true)
+			go func() {
+				prevc.Close(true)
+				close(prevcerr)
+			}()
 		}
 
 		// If active monitoring is enabled, start pinging routine.
@@ -242,7 +252,6 @@ func (c *gcmClient) monitorXMPP(activeMonitor bool, clientIsConnected chan bool,
 		}
 
 		l.WithField("error", err).Error("gcm xmpp connection")
-		close(cerr)
 	}
 	log.WithField("sender id", c.senderID).
 		Debug("gcm xmpp connection monitor finished")

@@ -17,6 +17,11 @@ const (
 	httpAddress = "https://gcm-http.googleapis.com/gcm/send"
 )
 
+var globalTransport = &http.Transport{
+	// Hopefully reduce connection resets http://stackoverflow.com/a/31409281/1955935
+	MaxIdleConnsPerHost: 24,
+}
+
 // httpClient is an interface to stub the internal http.Client.
 type httpClient interface {
 	Do(req *http.Request) (resp *http.Response, err error)
@@ -39,10 +44,7 @@ func newHTTPClient(apiKey string, debug bool) httpC {
 		GCMURL: httpAddress,
 		apiKey: apiKey,
 		httpClient: &http.Client{
-			// Hopefully reduce connection resets http://stackoverflow.com/a/31409281/1955935
-			Transport: &http.Transport{
-				MaxIdleConnsPerHost: 24,
-			},
+			Transport: globalTransport,
 		},
 		debug: debug,
 	}
