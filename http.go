@@ -33,20 +33,22 @@ type gcmHTTP struct {
 	apiKey     string
 	httpClient httpClient
 	debug      bool
+	omitRetry  bool
 }
 
 // Used to compute results for multicast messages with retries.
 type multicastResultsState map[string]*HTTPResult
 
 // newHTTPGCMClient creates a new client for handling GCM HTTP requests.
-func newHTTPClient(apiKey string, debug bool) httpC {
+func newHTTPClient(apiKey string, debug bool, omitRetry bool) httpC {
 	return &gcmHTTP{
 		GCMURL: httpAddress,
 		apiKey: apiKey,
 		httpClient: &http.Client{
 			Transport: globalTransport,
 		},
-		debug: debug,
+		debug:     debug,
+		omitRetry: omitRetry,
 	}
 }
 
@@ -59,7 +61,6 @@ func (c *gcmHTTP) Send(m HTTPMessage) (*HTTPResponse, error) {
 
 	var (
 		multicastID  int64
-		retryAfter   time.Duration
 		gcmResp      *HTTPResponse
 		b            = newExponentialBackoff()
 		resultsState = make(multicastResultsState)
@@ -70,10 +71,11 @@ func (c *gcmHTTP) Send(m HTTPMessage) (*HTTPResponse, error) {
 	copy(localTo, targets)
 
 	for b.sendAnother() {
-		if gcmResp, retryAfter, err = sendHTTP(c.httpClient, c.GCMURL, c.apiKey, m, c.debug); err != nil {
+		gcmResp, err = sendHTTP(c.httpClient, c.GCMURL, c.apiKey, m, c.debug)
+		if err != nil {
 			// Honor the Retry-After header if it is included in the response.
-			if retryAfter > 0 {
-				b.setMin(retryAfter)
+			if !c.omitRetry && gcmResp.RetryAfter > 0 {
+				b.setMin(gcmResp.RetryAfter)
 				b.wait()
 				continue
 			}
@@ -85,10 +87,10 @@ func (c *gcmHTTP) Send(m HTTPMessage) (*HTTPResponse, error) {
 			if err != nil {
 				return gcmResp, fmt.Errorf("error checking GCM results: %v", err)
 			}
-			if doRetry {
+			if !c.omitRetry && doRetry {
 				// Honor the Retry-After header if it is included in the response.
-				if retryAfter > 0 {
-					b.setMin(retryAfter)
+				if gcmResp.RetryAfter > 0 {
+					b.setMin(gcmResp.RetryAfter)
 				}
 				localTo = make([]string, len(toRetry))
 				copy(localTo, toRetry)
@@ -117,7 +119,6 @@ func parseRetryAfter(retryAfter string) (time.Duration, error) {
 	// Examples:
 	// Retry-After: Fri, 31 Dec 1999 23:59:59 GMT
 	// Retry-After: 120
-	// Assuming that the header contains seconds instead of a date
 
 	// Try parsing seconds first:
 	if d, err := time.ParseDuration(fmt.Sprintf("%vs", retryAfter)); err == nil {
@@ -134,7 +135,7 @@ func parseRetryAfter(retryAfter string) (time.Duration, error) {
 
 // sendHTTP sends a single request to GCM HTTP server and parses the response.
 func sendHTTP(httpClient httpClient, URL string, apiKey string, m HTTPMessage,
-	debug bool) (gcmResp *HTTPResponse, retryAfter time.Duration, err error) {
+	debug bool) (gcmResp *HTTPResponse, err error) {
 	var bs []byte
 	if bs, err = json.Marshal(m); err != nil {
 		return
@@ -158,8 +159,8 @@ func sendHTTP(httpClient httpClient, URL string, apiKey string, m HTTPMessage,
 		return
 	}
 
-	gcmResp = &HTTPResponse{StatusCode: httpResp.StatusCode}
-	retryAfter, err = parseRetryAfter(httpResp.Header.Get(http.CanonicalHeaderKey("Retry-After")))
+	retryAfter, err := parseRetryAfter(httpResp.Header.Get(http.CanonicalHeaderKey("Retry-After")))
+	gcmResp = &HTTPResponse{StatusCode: httpResp.StatusCode, RetryAfter: retryAfter}
 
 	// Read response.
 	body, err := ioutil.ReadAll(httpResp.Body)

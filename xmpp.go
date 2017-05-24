@@ -92,6 +92,7 @@ type gcmXMPP struct {
 	closed     bool
 	destructor sync.Once
 	debug      bool
+	omitRetry  bool
 }
 
 // An entry in the messages log, used to keep track of messages pending ack and
@@ -102,7 +103,7 @@ type messageLogEntry struct {
 }
 
 // newXMPPClient creates a new client for GCM XMPP Server (CCS).
-func newXMPPClient(isSandbox bool, useFCM bool, senderID string, apiKey string, debug bool) (xmppC, error) {
+func newXMPPClient(isSandbox bool, useFCM bool, senderID string, apiKey string, debug bool, omitRetry bool) (xmppC, error) {
 	var xmppHost, xmppAddress, ccsHostForUser string
 	if useFCM {
 		xmppHost = fcmHost
@@ -150,10 +151,11 @@ func newXMPPClient(isSandbox bool, useFCM bool, senderID string, apiKey string, 
 		}{
 			m: make(map[string]*messageLogEntry),
 		},
-		xmppHost: xmppHost,
-		senderID: senderID,
-		pongs:    make(chan struct{}, 100),
-		debug:    debug,
+		xmppHost:  xmppHost,
+		senderID:  senderID,
+		pongs:     make(chan struct{}, 100),
+		debug:     debug,
+		omitRetry: omitRetry,
 	}
 
 	return xc, nil
@@ -278,7 +280,7 @@ func (c *gcmXMPP) Listen(h MessageHandler) error {
 				c.messages.Unlock()
 			case CCSNack:
 				// nack for a sent message, retry if retryable error, bubble up otherwise.
-				if retryableErrors[cm.Error] {
+				if !c.omitRetry && retryableErrors[cm.Error] {
 					c.retryMessage(cm, h)
 				} else {
 					c.messages.Lock()
