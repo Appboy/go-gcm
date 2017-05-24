@@ -41,9 +41,8 @@ type HTTPResponse struct {
 	CanonicalIds uint         `json:"canonical_ids"`
 	Results      []HTTPResult `json:"results,omitempty"`
 	// Topic message HTTP response only.
-	MessageID uint   `json:"message_id,omitempty"`
-	Error     string `json:"error,omitempty"`
-	// In Seconds
+	MessageID  uint          `json:"message_id,omitempty"`
+	Error      string        `json:"error,omitempty"`
 	RetryAfter time.Duration `json:"retry_after,omitempty"`
 }
 
