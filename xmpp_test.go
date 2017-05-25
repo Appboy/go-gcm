@@ -21,7 +21,7 @@ func getMsgStr(msg *XMPPMessage) string {
 var _ = Describe("GCM XMPP Client", func() {
 	Describe("initializing", func() {
 		It("should fail to initialize due to connect error", func() {
-			c, err := newXMPPClient(false, false, "sender id", "api key", false)
+			c, err := newXMPPClient(false, false, "sender id", "api key", false, false)
 			Expect(err).To(HaveOccurred())
 			Expect(c).To(BeNil())
 			Expect(err.Error()).To(HavePrefix("error connecting gcm xmpp client: auth failure"))

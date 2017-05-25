@@ -15,6 +15,8 @@
 // Package gcm provides send and receive GCM functionality.
 package gcm
 
+import "time"
+
 // HTTPMessage defines a downstream GCM HTTP message.
 type HTTPMessage struct {
 	To                    string        `json:"to,omitempty"`
@@ -39,8 +41,9 @@ type HTTPResponse struct {
 	CanonicalIds uint         `json:"canonical_ids"`
 	Results      []HTTPResult `json:"results,omitempty"`
 	// Topic message HTTP response only.
-	MessageID uint   `json:"message_id,omitempty"`
-	Error     string `json:"error,omitempty"`
+	MessageID  uint          `json:"message_id,omitempty"`
+	Error      string        `json:"error,omitempty"`
+	RetryAfter time.Duration `json:"retry_after,omitempty"`
 }
 
 // HTTPResult represents the result of a single processed HTTP request.
@@ -101,6 +104,7 @@ type Config struct {
 	Debug             bool   `json:"debug"`
 	PingInterval      int    `json:"ping_interval"`
 	PingTimeout       int    `json:"ping_timeout"`
+	OmitInternalRetry bool   `json:"omit_internal_retry"`
 }
 
 // CCSMessage is an XMPP message sent from CCS.

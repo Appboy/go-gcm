@@ -47,11 +47,12 @@ var _ = Describe("HTTP Client", func() {
 
 	Context("initializing", func() {
 		It("should init successfully", func() {
-			c := newHTTPClient("key", true)
+			c := newHTTPClient("key", true, false)
 			Expect(c).To(BeAssignableToTypeOf(&gcmHTTP{}))
 			gc := c.(*gcmHTTP)
 			Expect(gc.apiKey).To(Equal("key"))
 			Expect(gc.httpClient).NotTo(BeNil())
+			Expect(gc.omitRetry).To(Equal(false))
 		})
 	})
 
