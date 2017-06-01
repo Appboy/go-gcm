@@ -40,12 +40,13 @@ type gcmHTTP struct {
 type multicastResultsState map[string]*HTTPResult
 
 // newHTTPGCMClient creates a new client for handling GCM HTTP requests.
-func newHTTPClient(apiKey string, debug bool, omitRetry bool) httpC {
+func newHTTPClient(apiKey string, debug bool, omitRetry bool, timeout time.Duration) httpC {
 	return &gcmHTTP{
 		GCMURL: httpAddress,
 		apiKey: apiKey,
 		httpClient: &http.Client{
 			Transport: globalTransport,
+			Timeout:   timeout,
 		},
 		debug:     debug,
 		omitRetry: omitRetry,
