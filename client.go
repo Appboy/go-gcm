@@ -58,7 +58,7 @@ func NewClient(config *Config, h MessageHandler) (Client, error) {
 	useHTTPOnly := config.SenderID == ""
 
 	// Create GCM HTTP client.
-	httpc := newHTTPClient(config.APIKey, config.Debug, config.OmitInternalRetry)
+	httpc := newHTTPClient(config.APIKey, config.Debug, config.OmitInternalRetry, config.HTTPTimeout)
 
 	var xmppc xmppC
 	var err error

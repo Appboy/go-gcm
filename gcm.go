@@ -96,15 +96,16 @@ type Notification struct {
 
 // Config is a container for GCM client configuration data.
 type Config struct {
-	SenderID          string `json:"sender_id"`
-	APIKey            string `json:"api_key"`
-	UseFCM            bool   `json:"use_fcm"`
-	Sandbox           bool   `json:"sandbox"`
-	MonitorConnection bool   `json:"monitor_connection"`
-	Debug             bool   `json:"debug"`
-	PingInterval      int    `json:"ping_interval"`
-	PingTimeout       int    `json:"ping_timeout"`
-	OmitInternalRetry bool   `json:"omit_internal_retry"`
+	SenderID          string        `json:"sender_id"`
+	APIKey            string        `json:"api_key"`
+	UseFCM            bool          `json:"use_fcm"`
+	Sandbox           bool          `json:"sandbox"`
+	MonitorConnection bool          `json:"monitor_connection"`
+	Debug             bool          `json:"debug"`
+	PingInterval      int           `json:"ping_interval"`
+	PingTimeout       int           `json:"ping_timeout"`
+	OmitInternalRetry bool          `json:"omit_internal_retry"`
+	HTTPTimeout       time.Duration `json:"http_timeout"`
 }
 
 // CCSMessage is an XMPP message sent from CCS.
