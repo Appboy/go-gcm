@@ -15,7 +15,10 @@
 // Package gcm provides send and receive GCM functionality.
 package gcm
 
-import "time"
+import (
+	"net/http"
+	"time"
+)
 
 // HTTPMessage defines a downstream GCM HTTP message.
 type HTTPMessage struct {
@@ -96,16 +99,17 @@ type Notification struct {
 
 // Config is a container for GCM client configuration data.
 type Config struct {
-	SenderID          string        `json:"sender_id"`
-	APIKey            string        `json:"api_key"`
-	UseFCM            bool          `json:"use_fcm"`
-	Sandbox           bool          `json:"sandbox"`
-	MonitorConnection bool          `json:"monitor_connection"`
-	Debug             bool          `json:"debug"`
-	PingInterval      int           `json:"ping_interval"`
-	PingTimeout       int           `json:"ping_timeout"`
-	OmitInternalRetry bool          `json:"omit_internal_retry"`
-	HTTPTimeout       time.Duration `json:"http_timeout"`
+	SenderID          string            `json:"sender_id"`
+	APIKey            string            `json:"api_key"`
+	UseFCM            bool              `json:"use_fcm"`
+	Sandbox           bool              `json:"sandbox"`
+	MonitorConnection bool              `json:"monitor_connection"`
+	Debug             bool              `json:"debug"`
+	PingInterval      int               `json:"ping_interval"`
+	PingTimeout       int               `json:"ping_timeout"`
+	OmitInternalRetry bool              `json:"omit_internal_retry"`
+	HTTPTimeout       time.Duration     `json:"http_timeout"`
+	HTTPTransport     http.RoundTripper `json:"-"`
 }
 
 // CCSMessage is an XMPP message sent from CCS.
