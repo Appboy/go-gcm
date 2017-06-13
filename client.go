@@ -234,10 +234,15 @@ func (c *gcmClient) monitorXMPP(activeMonitor bool, clientIsConnected chan bool,
 			l.WithField("previous xmpp client ref", prevc.ID()).
 				Warn("gcm xmpp client replaced")
 
-			// Close the previous client.
+			// Close the previous client - and the cerr channel, unless killMonitor handled it
 			go func() {
 				prevc.Close(true)
-				close(prevcerr)
+				select {
+				case <-killMonitor:
+					return
+				default:
+					close(prevcerr)
+				}
 			}()
 		}
 
