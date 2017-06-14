@@ -37,7 +37,7 @@ type gcmClient struct {
 	xmppClient xmppC
 	httpClient httpC
 
-	// Synchronize replacement of xmppClient through xmppChan
+	// Synchronize sending xmpp with the replacement of xmppClient through xmppChan
 	xmppChan chan xmppPacket
 
 	// GCM auth.
