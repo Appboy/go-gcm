@@ -103,11 +103,13 @@ var _ = Describe("GCM Client", func() {
 		BeforeEach(func() {
 			xm = new(xmppCMock)
 			c = &gcmClient{
-				xmppClient: xm,
-				cerr:       make(chan error),
-				senderID:   "sender id",
-				apiKey:     "api key",
-				mh:         nil,
+				xmppClient:  xm,
+				cerr:        make(chan error),
+				senderID:    "sender id",
+				apiKey:      "api key",
+				mh:          nil,
+				killMonitor: make(chan bool, 1),
+				xmppChan:    make(chan xmppPacket),
 			}
 		})
 
@@ -119,7 +121,7 @@ var _ = Describe("GCM Client", func() {
 			xm.On("ID").Return("id")
 			xm.On("Listen", mock.AnythingOfType("gcm.MessageHandler")).
 				Return(errors.New("Listen"))
-			go c.monitorXMPP(false, make(chan bool, 1), make(chan bool, 1))
+			go c.monitorXMPP(false, make(chan bool, 1))
 			err := <-c.cerr
 			Expect(err).To(MatchError("Listen"))
 		})
@@ -139,7 +141,18 @@ var _ = Describe("GCM Client", func() {
 			hm = HTTPMessage{To: "me"}
 			h = new(httpCMock)
 			x = new(xmppCMock)
-			c = &gcmClient{httpClient: h, xmppClient: x}
+
+			c = &gcmClient{
+				httpClient:  h,
+				xmppClient:  x,
+				cerr:        make(chan error),
+				senderID:    "sender id",
+				apiKey:      "api key",
+				mh:          nil,
+				killMonitor: make(chan bool, 1),
+				xmppChan:    make(chan xmppPacket),
+			}
+			go c.(*gcmClient).loop(false)
 		})
 
 		AfterEach(func() {
@@ -190,7 +203,7 @@ var _ = Describe("GCM Client", func() {
 
 		BeforeEach(func() {
 			x = new(xmppCMock)
-			c = &gcmClient{xmppClient: x}
+			c = &gcmClient{xmppClient: x, killMonitor: make(chan bool, 1)}
 		})
 
 		AfterEach(func() {
