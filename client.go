@@ -184,7 +184,6 @@ func (c *gcmClient) loop(activeMonitor bool) {
 	for {
 		select {
 		case <-c.killMonitor:
-			close(c.cerr)
 			return
 		case packet := <-c.xmppChan:
 			c.RLock()
@@ -208,7 +207,6 @@ func (c *gcmClient) loop(activeMonitor bool) {
 func (c *gcmClient) replaceXMPPClient(activeMonitor bool) {
 	c.Lock()
 	prevc := c.xmppClient
-	close(c.cerr)
 	c.cerr = make(chan error)
 	xmppc, err := connectXMPP(nil, c.sandbox, c.fcm, c.senderID, c.apiKey,
 		c.onCCSMessage, c.cerr, c.debug, c.omitRetry)
