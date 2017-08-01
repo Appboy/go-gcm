@@ -17,11 +17,6 @@ const (
 	httpAddress = "https://gcm-http.googleapis.com/gcm/send"
 )
 
-var globalTransport = &http.Transport{
-	// Hopefully reduce connection resets http://stackoverflow.com/a/31409281/1955935
-	MaxIdleConnsPerHost: 24,
-}
-
 // httpClient is an interface to stub the internal http.Client.
 type httpClient interface {
 	Do(req *http.Request) (resp *http.Response, err error)
@@ -47,11 +42,9 @@ func newHTTPClient(
 	timeout time.Duration,
 	transport http.RoundTripper,
 ) httpC {
-
 	if transport == nil {
-		transport = globalTransport
+		transport = http.DefaultTransport
 	}
-
 	return &gcmHTTP{
 		GCMURL: httpAddress,
 		apiKey: apiKey,
