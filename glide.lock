@@ -1,8 +1,8 @@
 hash: 6b7784aefc04fc1ab46e34bfe4f072fc8b17ab758ec18eea716fdf7bcf0afcf7
-updated: 2017-04-24T17:04:18.083707264-04:00
+updated: 2017-11-07T12:24:49.984054601-05:00
 imports:
 - name: github.com/alecthomas/kingpin
-  version: 7f0871f2e17818990e4eed73f9b5c2f429501228
+  version: 1087e65c9441605df944fb12c33f0fe7072d18ca
 - name: github.com/alecthomas/template
   version: a0175ee3bccc567396460bf5acd36800cb10c49c
   subpackages:
@@ -16,11 +16,11 @@ imports:
   subpackages:
   - spew
 - name: github.com/jpillora/backoff
-  version: a6f64285fd4072883335339357436b78d62c96a4
+  version: 8eab2debe79d12b7bd3d10653910df25fa9552ba
 - name: github.com/mattn/go-xmpp
-  version: 906d9d747d2b4c59e60104678b62e464dd1623cf
+  version: d0cdb99fae16437f69616ccc40662b6fe8ac6d47
 - name: github.com/pborman/uuid
-  version: a97ce2ca70fa5a848076093f05e639a89ca34d06
+  version: e790cca94e6cc75c7064b1332e63811d4aae1a53
 - name: github.com/pmezard/go-difflib
   version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
   subpackages:
@@ -35,12 +35,12 @@ imports:
   - assert
   - mock
 - name: golang.org/x/sys
-  version: d75a52659825e75fff6158388dddc6a5b04f9ba5
+  version: 75813c647272dd855bda156405bf844a5414f5bf
   subpackages:
   - unix
 testImports:
 - name: github.com/onsi/ginkgo
-  version: bb93381d543b0e5725244abe752214a110791d01
+  version: 652e15c9a27e1cec563e065568014f29eecf6bd9
   subpackages:
   - config
   - extensions/table
@@ -50,6 +50,7 @@ testImports:
   - internal/leafnodes
   - internal/remote
   - internal/spec
+  - internal/spec_iterator
   - internal/specrunner
   - internal/suite
   - internal/testingtproxy
@@ -60,7 +61,7 @@ testImports:
   - reporters/stenographer/support/go-isatty
   - types
 - name: github.com/onsi/gomega
-  version: e85f63af4302dc0e4277c6008ecf803f1d80e4f0
+  version: 1eecca0ba8e6f5ea5a431ce21d3aee2af0b4c90b
   subpackages:
   - format
   - internal/assertion
@@ -73,5 +74,29 @@ testImports:
   - matchers/support/goraph/node
   - matchers/support/goraph/util
   - types
+- name: golang.org/x/net
+  version: f5079bd7f6f74e23c4d65efa0f4ce14cbd6a3c0f
+  subpackages:
+  - html
+  - html/atom
+  - html/charset
+- name: golang.org/x/text
+  version: 836efe42bb4aa16aaa17b9c155d8813d336ed720
+  subpackages:
+  - encoding
+  - encoding/charmap
+  - encoding/htmlindex
+  - encoding/internal
+  - encoding/internal/identifier
+  - encoding/japanese
+  - encoding/korean
+  - encoding/simplifiedchinese
+  - encoding/traditionalchinese
+  - encoding/unicode
+  - internal/tag
+  - internal/utf8internal
+  - language
+  - runes
+  - transform
 - name: gopkg.in/yaml.v2
-  version: 4c78c975fe7c825c6d1466c42be594d1d6f3aba6
+  version: eb3733d160e74a9c7e442f435eb3bea458e1d19f
