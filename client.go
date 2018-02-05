@@ -198,14 +198,16 @@ func (c *gcmClient) loop(activeMonitor bool) {
 			}
 
 			log.WithField("xmpp client ref", c.xmppClient.ID()).WithField("error", err).Error("gcm xmpp connection")
+
+			c.Lock()
 			c.replaceXMPPClient(activeMonitor)
+			c.Unlock()
 		}
 	}
 }
 
 // Replace the active client.
 func (c *gcmClient) replaceXMPPClient(activeMonitor bool) {
-	c.Lock()
 	prevc := c.xmppClient
 	c.cerr = make(chan error)
 	xmppc, err := connectXMPP(nil, c.sandbox, c.fcm, c.senderID, c.apiKey,
@@ -216,14 +218,11 @@ func (c *gcmClient) replaceXMPPClient(activeMonitor bool) {
 		// Wait and try again.
 		// TODO: remove infinite loop.
 		time.Sleep(c.pingTimeout)
-		c.Unlock()
 		c.replaceXMPPClient(activeMonitor)
 	} else {
 		c.xmppClient = xmppc
 		// Close the previous client
 		go prevc.Close(true)
-
-		c.Unlock()
 
 		log.WithField("xmpp client ref", xmppc.ID()).WithField("previous xmpp client ref", prevc.ID()).
 			Warn("gcm xmpp client replaced")
