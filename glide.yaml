@@ -1,6 +1,6 @@
 package: github.com/Appboy/go-gcm
 import:
-- package: github.com/Sirupsen/logrus
+- package: github.com/sirupsen/logrus
   version: ^0.11.0
 - package: github.com/alecthomas/kingpin
   version: ^2.2.3
