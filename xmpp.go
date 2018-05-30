@@ -10,9 +10,9 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/mattn/go-xmpp"
 	"github.com/pborman/uuid"
+	log "github.com/sirupsen/logrus"
 )
 
 const (

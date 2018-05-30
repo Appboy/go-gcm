@@ -21,7 +21,7 @@ This is a rework of [go-gcm library](https://github.com/google/go-gcm). It has t
 * graceful close
 * exponential backoff when sending a message
 * circuit breaker for each provider
-* improved logging with [logrus](https://github.com/Sirupsen/logrus)
+* improved logging with [logrus](https://github.com/sirupsen/logrus)
 * [ginkgo](https://onsi.github.io/ginkgo/) tests
 * various govet/golint fixes
 * automatic builds with [Travis][travis] and coverage with [Codecov][codecov]

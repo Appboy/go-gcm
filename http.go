@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 const (

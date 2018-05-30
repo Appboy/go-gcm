@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 // httpC is an interface to stub the internal HTTP client.
