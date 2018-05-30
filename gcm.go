@@ -99,8 +99,11 @@ type Notification struct {
 
 // Config is a container for GCM client configuration data.
 type Config struct {
-	SenderID          string            `json:"sender_id"`
-	APIKey            string            `json:"api_key"`
+	SenderID string `json:"sender_id"`
+	APIKey   string `json:"api_key"`
+	// Deprecated: for backwards compatibility UseFCM is still present, but it no longer has any effect. The GCM
+	// endpoints are on the path to deletion, and Google has confirmed that the FCM endpoints are backwards compatible.
+	// All HTTP and XMPP push will be sent using the FCM endpoints.
 	UseFCM            bool              `json:"use_fcm"`
 	Sandbox           bool              `json:"sandbox"`
 	MonitorConnection bool              `json:"monitor_connection"`
