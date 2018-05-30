@@ -30,7 +30,6 @@ type gcmClient struct {
 	mh        MessageHandler
 	cerr      chan error
 	sandbox   bool
-	fcm       bool
 	debug     bool
 	omitRetry bool
 	// Clients.
@@ -75,7 +74,7 @@ func NewClient(config *Config, h MessageHandler) (Client, error) {
 	var err error
 	if !useHTTPOnly {
 		// Create GCM XMPP client.
-		xmppc, err = newXMPPClient(config.Sandbox, config.UseFCM, config.SenderID, config.APIKey, config.Debug, config.OmitInternalRetry)
+		xmppc, err = newXMPPClient(config.Sandbox, config.SenderID, config.APIKey, config.Debug, config.OmitInternalRetry)
 		if err != nil {
 			return nil, err
 		}
@@ -148,7 +147,6 @@ func newGCMClient(xmppc xmppC, httpc httpC, config *Config, h MessageHandler) (*
 		debug:        config.Debug,
 		omitRetry:    config.OmitInternalRetry,
 		sandbox:      config.Sandbox,
-		fcm:          config.UseFCM,
 		pingInterval: time.Duration(config.PingInterval) * time.Second,
 		pingTimeout:  time.Duration(config.PingTimeout) * time.Second,
 		killMonitor:  make(chan bool, 1),
@@ -210,7 +208,7 @@ func (c *gcmClient) loop(activeMonitor bool) {
 func (c *gcmClient) replaceXMPPClient(activeMonitor bool) {
 	prevc := c.xmppClient
 	c.cerr = make(chan error)
-	xmppc, err := connectXMPP(nil, c.sandbox, c.fcm, c.senderID, c.apiKey,
+	xmppc, err := connectXMPP(nil, c.sandbox, c.senderID, c.apiKey,
 		c.onCCSMessage, c.cerr, c.debug, c.omitRetry)
 	if err != nil {
 		log.WithFields(log.Fields{"sender id": c.senderID, "error": err}).
@@ -249,7 +247,7 @@ func (c *gcmClient) spinUpActiveMonitor() {
 func (c *gcmClient) monitorXMPP(activeMonitor bool, clientIsConnected chan bool) {
 	// Create XMPP client.
 	log.WithField("sender id", c.senderID).Debug("creating gcm xmpp client")
-	xmppc, err := connectXMPP(c.xmppClient, c.sandbox, c.fcm, c.senderID, c.apiKey,
+	xmppc, err := connectXMPP(c.xmppClient, c.sandbox, c.senderID, c.apiKey,
 		c.onCCSMessage, c.cerr, c.debug, c.omitRetry)
 	if err != nil {
 		// On initial connection, error exits the monitor.
@@ -296,7 +294,7 @@ func (c *gcmClient) onCCSMessage(cm CCSMessage) error {
 }
 
 // Creates a new xmpp client (if not provided), connects to the server and starts listening.
-func connectXMPP(c xmppC, isSandbox bool, useFCM bool, senderID string, apiKey string,
+func connectXMPP(c xmppC, isSandbox bool, senderID string, apiKey string,
 	h MessageHandler, cerr chan<- error, debug bool, omitRetry bool) (xmppC, error) {
 	var xmppc xmppC
 	if c != nil {
@@ -305,7 +303,7 @@ func connectXMPP(c xmppC, isSandbox bool, useFCM bool, senderID string, apiKey s
 	} else {
 		// Create new.
 		var err error
-		xmppc, err = newXMPPClient(isSandbox, useFCM, senderID, apiKey, debug, omitRetry)
+		xmppc, err = newXMPPClient(isSandbox, senderID, apiKey, debug, omitRetry)
 		if err != nil {
 			cerr <- err
 			return nil, err
