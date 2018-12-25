@@ -79,7 +79,7 @@ func (c *gcmHTTP) Send(m HTTPMessage) (*HTTPResponse, error) {
 		gcmResp, err = sendHTTP(c.httpClient, c.GCMURL, c.apiKey, m, c.debug)
 		if err != nil {
 			// Honor the Retry-After header if it is included in the response.
-			if !c.omitRetry && gcmResp.RetryAfter > 0 {
+			if !c.omitRetry && gcmResp != nil && gcmResp.RetryAfter > 0 {
 				b.setMin(gcmResp.RetryAfter)
 				b.wait()
 				continue
